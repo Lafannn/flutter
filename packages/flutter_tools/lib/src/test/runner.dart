@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import '../artifacts.dart';
-import '../base/common.dart';
 import '../base/file_system.dart';
 import '../base/io.dart';
 import '../device.dart';
@@ -31,7 +30,7 @@ abstract class FlutterTestRunner {
     List<String> plainNames = const <String>[],
     String? tags,
     String? excludeTags,
-    bool enableObservatory = false,
+    bool enableVmService = false,
     bool ipv6 = false,
     bool machine = false,
     String? precompiledDillPath,
@@ -68,7 +67,7 @@ class _FlutterTestRunnerImpl implements FlutterTestRunner {
     List<String> plainNames = const <String>[],
     String? tags,
     String? excludeTags,
-    bool enableObservatory = false,
+    bool enableVmService = false,
     bool ipv6 = false,
     bool machine = false,
     String? precompiledDillPath,
@@ -102,8 +101,8 @@ class _FlutterTestRunnerImpl implements FlutterTestRunner {
         '--pause-after-load',
       if (machine)
         ...<String>['-r', 'json']
-      else
-        ...<String>['-r', reporter ?? 'compact'],
+      else if (reporter != null)
+        ...<String>['-r', reporter],
       if (timeout != null)
         ...<String>['--timeout', timeout],
       '--concurrency=$concurrency',
@@ -144,9 +143,6 @@ class _FlutterTestRunnerImpl implements FlutterTestRunner {
         testFiles: testFiles,
         buildInfo: debuggingOptions.buildInfo,
       );
-      if (result == null) {
-        throwToolExit('Failed to compile tests');
-      }
       testArgs
         ..add('--platform=chrome')
         ..add('--')
@@ -196,7 +192,7 @@ class _FlutterTestRunnerImpl implements FlutterTestRunner {
       shellPath: shellPath,
       debuggingOptions: debuggingOptions,
       watcher: watcher,
-      enableObservatory: enableObservatory,
+      enableVmService: enableVmService,
       machine: machine,
       serverType: serverType,
       precompiledDillPath: precompiledDillPath,
